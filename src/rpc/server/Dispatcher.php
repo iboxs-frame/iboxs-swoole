@@ -245,7 +245,7 @@ class Dispatcher
                     continue;
                 }
 
-                if (is_string($middleware) && strpos($middleware, ':')) {
+                if (is_string($middleware) && str_contains($middleware, ':')) {
                     $middleware = explode(':', $middleware);
                     if (count($middleware) > 1) {
                         $middleware = [$middleware[0], array_slice($middleware, 1)];

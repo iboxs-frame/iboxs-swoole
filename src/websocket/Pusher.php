@@ -4,7 +4,7 @@ namespace iboxs\swoole\websocket;
 
 use iboxs\swoole\contract\websocket\HandlerInterface;
 use iboxs\swoole\Manager;
-use iboxs\swoole\websocket\message\PushMessage;
+use iboxs\swoole\message\PushMessage;
 
 /**
  * Class Pusher

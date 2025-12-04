@@ -4,6 +4,8 @@ namespace iboxs\swoole\concerns;
 
 use Closure;
 use iboxs\App;
+use iboxs\Container;
+use iboxs\Log;
 use iboxs\swoole\App as SwooleApp;
 use iboxs\swoole\Manager;
 use iboxs\swoole\pool\Cache;
@@ -34,7 +36,9 @@ trait WithApplication
             if ($this->getConfig('pool.db.enable', true)) {
                 $this->app->bind('db', Db::class);
                 $this->app->resolving(Db::class, function (Db $db) {
-                    $db->setLog($this->container->log);
+                    $db->setLog(function ($type, $log) {
+                        Container::getInstance()->make(Log::class)->log($type, $log);
+                    });
                 });
             }
             if ($this->getConfig('pool.cache.enable', true)) {

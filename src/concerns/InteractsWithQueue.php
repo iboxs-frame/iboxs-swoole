@@ -2,6 +2,7 @@
 
 namespace iboxs\swoole\concerns;
 
+use Swoole\Coroutine;
 use Swoole\Process;
 use Swoole\Timer;
 use iboxs\helper\Arr;
@@ -16,7 +17,7 @@ trait InteractsWithQueue
 
         foreach ($workers as $queue => $options) {
 
-            if (strpos($queue, '@') !== false) {
+            if (str_contains($queue, '@')) {
                 [$queue, $connection] = explode('@', $queue);
             } else {
                 $connection = null;
@@ -35,6 +36,10 @@ trait InteractsWithQueue
 
                 while (true) {
                     $timer = Timer::after($timeout * 1000, function () use ($pool) {
+                        //关闭协程死锁检查
+                        Coroutine::set([
+                            'enable_deadlock_check' => false,
+                        ]);
                         $pool->getProcess()->exit();
                     });
 

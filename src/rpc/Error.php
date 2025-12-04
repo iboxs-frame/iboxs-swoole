@@ -20,15 +20,15 @@ class Error implements \JsonSerializable
     protected $data;
 
     /**
-     * @param int    $code
+     * @param int $code
      * @param string $message
-     * @param mixed  $data
+     * @param mixed $data
      *
      * @return Error
      */
     public static function make(int $code, string $message, $data = null): self
     {
-        $instance = new static();
+        $instance = new self();
 
         $instance->code    = $code;
         $instance->message = $message;
@@ -61,6 +61,7 @@ class Error implements \JsonSerializable
         return $this->data;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return [

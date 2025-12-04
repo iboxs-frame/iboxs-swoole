@@ -26,6 +26,7 @@ namespace iboxs\swoole\helper {
 
     use iboxs\swoole\response\File;
     use iboxs\swoole\response\Iterator;
+    use iboxs\swoole\response\Websocket;
     use Traversable;
 
     function download(string $filename, string $name = '', $disposition = File::DISPOSITION_ATTACHMENT): File
@@ -47,5 +48,10 @@ namespace iboxs\swoole\helper {
     function iterator(Traversable $iterator)
     {
         return new Iterator($iterator);
+    }
+
+    function websocket()
+    {
+        return new Websocket();
     }
 }

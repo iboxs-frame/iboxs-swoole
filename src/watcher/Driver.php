@@ -2,7 +2,9 @@
 
 namespace iboxs\swoole\watcher;
 
-interface Driver
+abstract class Driver
 {
-    public function watch(callable $callback);
+    abstract public function watch(callable $callback);
+
+    abstract public function stop();
 }

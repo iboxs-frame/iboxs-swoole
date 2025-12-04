@@ -2,28 +2,37 @@
 
 namespace iboxs\swoole;
 
-use iboxs\swoole\watcher\Driver;
-
 /**
- * @mixin Driver
+ * @mixin \iboxs\swoole\watcher\Driver
  */
 class Watcher extends \iboxs\Manager
 {
-    protected $namespace = '\\iboxs\\swoole\\watcher\\';
+    protected $namespace = '\\iboxs\\swoole\\watcher\\driver\\';
 
     protected function getConfig(string $name, $default = null)
     {
         return $this->app->config->get('swoole.hot_update.' . $name, $default);
     }
 
+    /**
+     * @param $name
+     * @return \iboxs\swoole\watcher\Driver
+     */
+    public function monitor($name = null)
+    {
+        return $this->driver($name);
+    }
+
     protected function resolveParams($name): array
     {
         return [
-            array_filter($this->getConfig('include', []), function ($dir) {
-                return is_dir($dir);
-            }),
-            $this->getConfig('exclude', []),
-            $this->getConfig('name', []),
+            [
+                'directory' => array_filter($this->getConfig('include', []), function ($dir) {
+                    return is_dir($dir);
+                }),
+                'exclude'   => $this->getConfig('exclude', []),
+                'name'      => $this->getConfig('name', []),
+            ],
         ];
     }
 

@@ -3,8 +3,8 @@
 namespace iboxs\swoole\rpc\server;
 
 use Swoole\Coroutine;
-use iboxs\swoole\rpc\packer\Buffer;
-use iboxs\swoole\rpc\packer\File;
+use iboxs\swoole\packet\Buffer;
+use iboxs\swoole\packet\File;
 
 class Channel
 {

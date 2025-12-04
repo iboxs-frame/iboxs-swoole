@@ -10,12 +10,14 @@ use Swoole\Http\Response;
 use Swoole\WebSocket\CloseFrame;
 use Swoole\WebSocket\Frame;
 use iboxs\App;
+use iboxs\Event;
 use iboxs\helper\Str;
+use iboxs\Http;
 use iboxs\swoole\contract\websocket\HandlerInterface;
 use iboxs\swoole\contract\websocket\RoomInterface;
+use iboxs\swoole\message\PushMessage;
 use iboxs\swoole\Middleware;
 use iboxs\swoole\Websocket;
-use iboxs\swoole\websocket\message\PushMessage;
 use iboxs\swoole\websocket\Room;
 use Throwable;
 
@@ -52,7 +54,27 @@ trait InteractsWithWebsocket
      */
     public function onHandShake($req, $res)
     {
-        $this->runInSandbox(function (App $app) use ($req, $res) {
+        $this->runInSandbox(function (App $app, Http $http, Event $event) use ($req, $res) {
+            $request = $this->prepareRequest($req);
+
+            //路由调度
+            $useRoute = $this->getConfig('websocket.route', false);
+            if ($useRoute) {
+                $response = $http->run($request);
+                if (!$response instanceof \iboxs\swoole\response\Websocket) {
+                    $res->close();
+                    return;
+                }
+                $event->subscribe([$response]);
+            } else {
+                $request = $this->setRequestThroughMiddleware($app, $request);
+            }
+
+            //自动处理Sec-WebSocket-Protocol
+            if ($protocol = $request->header('sec-websocket-protocol')) {
+                $res->header('sec-websocket-protocol', $protocol);
+            }
+
             $res->upgrade();
 
             $websocket = $app->make(Websocket::class, [], true);
@@ -79,10 +101,8 @@ trait InteractsWithWebsocket
 
                 $handler = $app->make(HandlerInterface::class);
 
-                $this->runWithBarrier(function () use ($req, $app, $handler) {
-                    $request = $this->prepareRequest($req);
+                $this->runWithBarrier(function () use ($request, $handler) {
                     try {
-                        $request = $this->setRequestThroughMiddleware($app, $request);
                         $handler->onOpen($request);
                     } catch (Throwable $e) {
                         $this->logServerError($e);
@@ -141,8 +161,6 @@ trait InteractsWithWebsocket
                     }
                 });
 
-                //关闭连接
-                $res->close();
                 $this->runWithBarrier(function () use ($handler) {
                     try {
                         $handler->onClose();
@@ -150,6 +168,8 @@ trait InteractsWithWebsocket
                         $this->logServerError($e);
                     }
                 });
+                //关闭连接
+                $res->close();
             } finally {
                 // leave all rooms
                 $websocket->leave();

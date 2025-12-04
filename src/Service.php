@@ -1,8 +1,8 @@
 <?php
 // +----------------------------------------------------------------------
-// | iboxsPHP [ WE CAN DO IT JUST iboxs IT ]
+// | ThinkPHP [ WE CAN DO IT JUST iboxs IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006-2018 http://iboxsphp.cn All rights reserved.
+// | Copyright (c) 2006-2018 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -21,7 +21,7 @@ class Service extends \iboxs\Service
     {
         $this->commands(
             ServerCommand::class,
-            RpcInterface::class
+            RpcInterface::class,
         );
     }
 
